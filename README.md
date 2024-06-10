@@ -21,6 +21,8 @@ thanks to Proteus VSM C++ SDK, I wrote an ILI9325 library.
  * Run the `install.bat` script to copy the .dll file into the destination
    directory.
 
+I provided a documentation [here](Docs/HowToBuildLCD/HowToBuildLCD-20240610-Mon.pdf?raw=true "HowToBuildLCD-20240610-Mon.pdf").
+
 
  Screenshots:
 ==============
