@@ -1,10 +1,17 @@
 #pragma once
 
+#include <vector>
+
 #ifndef NULL
 #define NULL nullptr
 #endif
 
 #include "vsm.hpp"
+
+
+// Uncomment to use int* for pixels instead of std::vector<int>.
+#define USE_INT_PTR
+
 
 class ILI9325 : public IACTIVEMODEL, public IDSIMMODEL
 {
@@ -90,6 +97,11 @@ private:
 	int regx;
 	int regy;
 
+#ifdef USE_INT_PTR
 	int* pixels;
+#else
+	std::vector<int> pixels;
+#endif
+
 	BOX lcd_box;
 };

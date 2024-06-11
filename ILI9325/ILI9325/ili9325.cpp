@@ -15,25 +15,24 @@ ILI9325::ILI9325() :
 	data(0),
 	regx(0),
 	regy(0),
+#ifdef USE_INT_PTR
 	pixels(new int[NUM_PIXELS])
+#else
+	pixels(NUM_PIXELS, 0xffffff)
+#endif
 {
 	memset(ctrl_pins, 0, sizeof(ctrl_pins[0]) * Pins::PIN_CNT);
 	memset(db_pins, 0, sizeof(db_pins[0]) * NUM_DB_PINS);
+#ifdef USE_INT_PTR
 	memset(pixels, 0xff, sizeof(pixels[0]) * NUM_PIXELS);
-
-	/*SetPixel(10, 10, 0xff0000);
-	SetPixel(20, 10, 0x00ff00);
-	SetPixel(30, 10, 0x0000ff);
-	SetPixel(10, 20, RED);
-	SetPixel(0, 10, YELLOW);
-	SetPixel(239, 10, CYAN);
-	SetPixel(0, 0, MAGENTA);
-	SetPixel(0, 319, DARKGREEN);*/
+#endif
 }
 
 ILI9325::~ILI9325()
 {
+#ifdef USE_INT_PTR
 	delete[] pixels;
+#endif
 }
 
 VOID ILI9325::initialize(ICOMPONENT* cpt)
@@ -106,7 +105,6 @@ VOID ILI9325::plot(ACTIVESTATE state)
 	ofs << "plot(" << state << ")" << std::endl;
 #endif
 
-	//comp->drawstate(state);
 	comp->drawsymbol(-1);
 	comp->drawsymbol(0);
 	Draw();
@@ -267,9 +265,7 @@ VOID ILI9325::simulate(ABSTIME time, DSIMMODES mode)
 		else if (reg == 0x21)
 			regy = data;
 		else if (reg == 0x22) {
-			//const int r = ((data >> 11) & 0x001f);// << 3;
-			//const int g = ((data >> 5) & 0x3f);// << 2;
-			//const int b = (data & 0x001f);// << 3;
+			// 16 bit color (5 bits red, 6 bits green, 5 bits blue)
 			const int r = (data & 0xf800) >> 8;
 			const int g = (data & 0x07e0) >> 3;
 			const int b = (data & 0x001f) << 3;
@@ -296,7 +292,7 @@ VOID ILI9325::simulate(ABSTIME time, DSIMMODES mode)
 
 	ofs << "simulate(time:" << time
 		<< ", mode:" << std::hex << mode << std::dec << ")"
-		//<< " dt:" << (time - old_tm)
+		<< " dt:" << (time - old_tm)
 		<< "   ctrl:" << CTRLPIN(Pins::PIN_GND) << CTRLPIN(Pins::PIN_VCC)
 		<< " " << CTRLPIN(Pins::PIN_REST)
 		<< CTRLPIN(Pins::PIN_CS) << CTRLPIN(Pins::PIN_RS)
@@ -382,8 +378,6 @@ void ILI9325::Draw() const
 		return;
 	frame = 0;
 #endif
-
-	//comp->drawsymbol(-1);
 
 	const double lcd_w = std::abs(lcd_box.x2 - lcd_box.x1) - SCR_X_OFF_2;
 	const double lcd_h = std::abs(lcd_box.y2 - lcd_box.y1) - SCR_Y_OFF_2;
